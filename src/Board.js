@@ -79,11 +79,28 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      var row = this.get(rowIndex);
+      var count = 0;
+
+      for (var i = 0; i < row.length; i++) {
+        if (row[i] === 1) {
+          count++;
+        }
+      }
+
+      return count > 1 ? true : false; // fixme
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
+      var board = this.rows();
+
+      for (var i = 0; i < board.length; i++) {
+        var isTrue = this.hasRowConflictAt(i);
+        if (isTrue) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
@@ -94,11 +111,29 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+
+      var board = this.rows();
+      var count = 0;
+
+      for (var i = 0; i < board.length; i++) {
+        if (board[i][colIndex] === 1) {
+          count++;
+        }
+      }
+
+      return count > 1 ? true : false;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
+      var board = this.rows();
+
+      for (var i = 0; i < board.length; i++) {
+        var isTrue = this.hasColConflictAt(i);
+        if (isTrue) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
@@ -109,11 +144,47 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      var index = majorDiagonalColumnIndexAtFirstRow;
+      var board = this.rows();
+      var startColumn, startRow;
+      var count = 0;
+      // console.log(startColumn, startRow, board);
+      
+      if (index > 0) {
+        startRow = 0;
+        startColumn = index;
+      } else {
+        startRow = Math.abs(index);
+        startColumn = 0;
+      }
+      while ( (startRow < board.length) && (startColumn < board.length) ) {
+
+
+        if (board[startRow][startColumn] === 1) {
+          count++;
+        }
+        startRow++;
+        startColumn++;
+      }
+
+      // console.log(count);
+      return count > 1 ? true : false;
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
+      var board = this.rows();
+      var start = board.length - 1;
+      var end = start * -1;
+      // console.log(start, end, board);
+
+
+      for (var i = start; i >= end; i--) {
+        if (this.hasMajorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+
       return false; // fixme
     },
 
@@ -124,11 +195,47 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      var index = minorDiagonalColumnIndexAtFirstRow;
+      var board = this.rows();
+      var startColumn, startRow;
+      var count = 0;
+      // console.log(startColumn, startRow, board);
+      
+      if (index < board.length) {
+        startRow = 0;
+        startColumn = index;
+      } else {
+        startColumn = board.length - 1;
+        startRow = index - startColumn;
+      }
+      while ( (startColumn >= 0) && (startRow < board.length) ) {
+        // console.log(startRow, startColumn, index);
+
+        if (board[startRow][startColumn] === 1) {
+          count++;
+        }
+        startRow++;
+        startColumn--;
+      }
+
+      // console.log(count);
+      return count > 1 ? true : false;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
+      var board = this.rows();
+      var start = 0;
+      var end = (board.length * 2) - 2;
+      // console.log(start, end, board);
+
+
+      for (var i = start; i <= end; i++) {
+        if (this.hasMinorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+
       return false; // fixme
     }
 
