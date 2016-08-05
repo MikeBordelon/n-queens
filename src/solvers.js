@@ -53,51 +53,78 @@ window.findNQueensSolution = function(n) {
   var board = newBoard.rows();
   var storage = {};
   var row = 0;
-  var start = 0;
+  var qscol = 0;
 
   var queenSearch = function(queenSearchRow, queenSearchCol) {
+    debugger;
     var searchRow = newBoard.get(queenSearchRow);
-
     //toggle a piece to be OFF if it's there, since it shouldn't be there
     if (searchRow.indexOf(1) !== -1) {
       var queenPosition = searchRow.indexOf(1);
       newBoard.togglePiece(queenSearchRow, queenPosition);
     }
 
-    // check for queens conflicts and try to fix it.
-    // var noQueen = true;
-    // var initializeToggle = start;
-    // while (noQueen && initializeToggle < board.length) {
 
-      var toggle = function(toggleRow, toggleCol) {
-        var currToggleCol = toggleCol;
-        newBoard.togglePiece(toggleRow, toggleCol);
+    var toggleCount = qscol;
+    
+    //check position and do toggle check
+    var toggle = function(toggleRow, toggleCol) {
+      var currToggleCol = toggleCount;
+      newBoard.togglePiece(toggleRow, currToggleCol);
 
+      //if there is conflict
+      if (newBoard.hasAnyQueensConflicts()) {
+        //remove the queen
+        newBoard.togglePiece(toggleRow, currToggleCol);
+        
+        // check is it's already at the end of that row
+        if (currToggleCol === board.length - 1) {
+          // decrement the working row to move upwards
+          row -= 2;
 
-        if (newBoard.hasAnyQueensConflicts()) {
-          newBoard.togglePiece(toggleRow, toggleCol);
-          
-          if (currToggleCol === board.length - 1) {
-            return;
-          }          
-          toggle(toggleRow, currToggleCol++);          
-        } else {
-          storage[toggleRow] = [toggleRow, currToggleCol];
+          qscol = storage[row+1][1];
+          qscol++;
+
+          return;
         }
-      };
-      toggle(row, start);  
 
+        // if not, perform toggle check on the next position
+        toggleCount++;
+        toggle(toggleRow, toggleCount);
 
-    }// queen search end  
+      } else {
+        // store the placed queen's position at the storage object
+        storage[toggleRow] = [toggleRow, currToggleCol];
+        qscol = 0;
+      }
+    }; //toggle END
 
-   };
+    // invoke toggle from start position
+    toggle(row, qscol);
 
+    // search all rows
+    while (row < board.length - 1) {
+      row++;
+      if (qscol === board.length) {
+        if (newBoard.get(row).indexOf(1) !== -1) {
+          var queenPosition = newBoard.get(row).indexOf(1);
+          newBoard.togglePiece(newBoard.get(row), queenPosition);
+        }
+        row--;
+        qscol = storage[row][1] + 1;
+        queenSearch(row, qscol);
+      } else {
+        queenSearch(row, qscol);   
+      }
+    }
+  }; // queen search end  
 
   
-  queenSearch(row, start);
+  queenSearch(row, 0);
 
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(newBoard));
   return board;
+};
     // console.log(n);
   // debugger;
   // var newBoard = new Board({n: n});
@@ -132,7 +159,7 @@ window.findNQueensSolution = function(n) {
   //     newBoard.togglePiece(0, col);
   //     queenSearch();
   //   }
-};
+
 
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
